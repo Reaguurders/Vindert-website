@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="Lars">
+
+        <title>Vindert</title>
+
+        <!-- Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+        <link href="css/vindert.css" rel="stylesheet"/>
+    </head>
+    <body>
+
+        <section class="search-container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="search-box">
+                        <div class="logo">
+                            <img src="img/logo.svg"/>
+                        </div>
+                        <div class="search-input input-group">
+                            <input type="text" class="form-control input-primary" placeholder="" />
+                            <div class="input-group-append">
+                                <button class="btn btn-md btn-primary" type="submit" id="start-seach">Zoek dan.</button>
+                            </div>
+                        </div>
+                        <div id="search-results" class="row"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core JavaScript -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script>
+            $('document').ready(function() {
+                // $.get("https://api.dev.vindert.nl/search?q=vuurwerk", function(data) {
+                //   $("#search-results").html(data);
+                //   alert("Load was performed.");
+                // });
+                // $.getJSON("https://api.dev.vindert.nl/search?q=vuurwerk", function(data) {
+                //       var items = [];
+                //       $.each( data, function( key, val ) {
+                //         items.push( "<li id='" + key + "'>" + val + "</li>" );
+                //       });
+                //
+                //       $( "<ul/>", {
+                //         "class": "my-new-list",
+                //         html: items.join( "" )
+                //       }).appendTo( "#search-results" );
+                //     });
+    //                 $.getJSON( "test.json", function( data ) {
+    //   var items = [];
+    //   $.each( data, function( key, val ) {
+    //     items.push( "<li id='" + key + "'>" + val + "</li>" );
+    //   });
+    //
+    //   $( "<ul/>", {
+    //     "class": "my-new-list",
+    //     html: items.join( "" )
+    //   }).appendTo( "body" );
+    // });
+    //             })
+                let search = '';
+                $("input").on('input', function() {
+                    let self = $(this);
+                    search = $(this).val();
+                    if(search.length < 3) {
+                        $("#search-results").find("> :hidden").not("." + search).remove();
+                        $("#search-results").find("> div").not("." + search).fadeOut();
+                    } else {
+                        $.getJSON("https://api.dev.vindert.nl/search?q=" + search, function (data) {
+                            if (data.success) {
+                                $(".search-input").addClass("success");
+                                $.each(data['data'], function (k, v) {
+                                    $("#search-results").append(
+                                        '<div class="col-lg-4 col-md-12 ' + search + ' " style="display: none;">\n' +
+                                        '<div class="card card-preview flex-row flex-wrap">\n' +
+                                        '<div class="card-body">\n' +
+                                        '<div class="card-thumb">\n' +
+                                        '<img alt="thumb" src="' + v.thumbnail + '" />\n' +
+                                        '</div>\n' +
+                                        '<div class="card-info">\n' +
+                                        '<strong class="video-title">' + v.title + '</strong><br />\n' +
+                                        '<span class="video-desc">' + v.description + '</span>\n' +
+                                        '</div>\n' +
+                                        '</div>\n' +
+                                        '</div>\n' +
+                                        '</div>'
+                                    )
+                                });
+
+                                setTimeout(function () {
+                                    $("." + search).each(function (i) {
+                                        $(this).delay(150 * i).queue(function () {
+                                            if (search === self.val()) {
+                                                $(this).fadeIn();
+                                            }
+                                            $(this).dequeue();
+                                        });
+                                    })
+                                }, 300);
+
+                                $("#search-results").find("> :hidden").not("." + search).remove();
+                                $("#search-results").find("> div").not("." + search).fadeOut();
+                            }
+                        })
+                    }
+                });
+            })
+        </script>
+    </body>
+</html>
